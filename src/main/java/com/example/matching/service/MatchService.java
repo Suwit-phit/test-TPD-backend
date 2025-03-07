@@ -10,6 +10,8 @@ import com.example.matching.repository.CandidateRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Comparator;
+
 @Service
 public class MatchService {
 
@@ -27,35 +29,33 @@ public class MatchService {
             }
         }
 
+        // Sort the list in descending order by matchPercentage
+        matchingCandidates.sort(Comparator.comparingDouble(CandidateMatch::getMatchPercentage).reversed());
+
         return matchingCandidates;
     }
 
     private double calculateMatchPercentage(Candidate candidate, Vacancy vacancy) {
-        // Extract positions and skills from candidate and vacancy
         String candidatePosition = candidate.getPosition();
-        String candidateSkills = candidate.getSkills();
-        String vacancyPosition = vacancy.getPosition();
+        
+        // Join the list of skills into a single string
+        String candidateSkills = String.join(", ", candidate.getSkills());
+        
+        String vacancyPosition = vacancy.getPositionApplied();
         String vacancySkills = vacancy.getSkills();
-
-        // Calculate match percentage based on positions and skills
+    
         double positionMatchPercentage = calculatePositionMatchPercentage(candidatePosition, vacancyPosition);
         double skillsMatchPercentage = calculateSkillsMatchPercentage(candidateSkills, vacancySkills);
-
-        // Combine position and skills match percentages with a weightage
-        // Adjust weights according to the importance of position and skills in your
-        // matching criteria
-        double totalWeight = 2.0; // Total weight for position and skills
-        double positionWeight = 1.0; // Weight for position
-        double skillsWeight = 1.0; // Weight for skills
-
+    
+        double totalWeight = 2.0;
+        double positionWeight = 1.0;
+        double skillsWeight = 1.0;
+    
         double combinedMatchPercentage = (positionMatchPercentage * positionWeight
                 + skillsMatchPercentage * skillsWeight) / totalWeight;
-
-        // return combinedMatchPercentage;
-        // Format the match percentage to two decimal points
-        double formattedMatchPercentage = Double.parseDouble(String.format("%.2f",
-                combinedMatchPercentage));
-
+    
+        double formattedMatchPercentage = Double.parseDouble(String.format("%.2f", combinedMatchPercentage));
+    
         return formattedMatchPercentage;
     }
 
@@ -108,6 +108,257 @@ public class MatchService {
     }
 }
 
+//! Below code is the same with the upper one but without comments
+// package com.example.matching.service;
+
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.stereotype.Service;
+
+// import com.example.matching.model.Candidate;
+// import com.example.matching.model.Vacancy;
+// import com.example.matching.repository.CandidateRepository;
+
+// import java.util.ArrayList;
+// import java.util.List;
+
+// import java.util.Comparator;
+
+// @Service
+// public class MatchService {
+
+//     @Autowired
+//     private CandidateRepository candidateRepository;
+
+//     public List<CandidateMatch> findMatchingCandidates(Vacancy vacancy) {
+//         List<Candidate> allCandidates = candidateRepository.findAll();
+//         List<CandidateMatch> matchingCandidates = new ArrayList<>();
+
+//         for (Candidate candidate : allCandidates) {
+//             double matchPercentage = calculateMatchPercentage(candidate, vacancy);
+//             if (matchPercentage > 0) {
+//                 matchingCandidates.add(new CandidateMatch(candidate, matchPercentage));
+//             }
+//         }
+
+//         // Sort the list in descending order by matchPercentage
+//         matchingCandidates.sort(Comparator.comparingDouble(CandidateMatch::getMatchPercentage).reversed());
+
+//         return matchingCandidates;
+//     }
+
+//     // private double calculateMatchPercentage(Candidate candidate, Vacancy vacancy) {
+//     //     String candidatePosition = candidate.getPosition();
+//     //     String candidateSkills = candidate.getSkills();
+//     //     String vacancyPosition = vacancy.getPositionApplied();
+//     //     // String vacancyPosition = vacancy.getPosition();
+//     //     String vacancySkills = vacancy.getSkills();
+
+//     //     double positionMatchPercentage = calculatePositionMatchPercentage(candidatePosition, vacancyPosition);
+//     //     double skillsMatchPercentage = calculateSkillsMatchPercentage(candidateSkills, vacancySkills);
+
+//     //     double totalWeight = 2.0;
+//     //     double positionWeight = 1.0;
+//     //     double skillsWeight = 1.0;
+
+//     //     double combinedMatchPercentage = (positionMatchPercentage * positionWeight
+//     //             + skillsMatchPercentage * skillsWeight) / totalWeight;
+
+//     //     double formattedMatchPercentage = Double.parseDouble(String.format("%.2f", combinedMatchPercentage));
+
+//     //     return formattedMatchPercentage;
+//     // }
+//     private double calculateMatchPercentage(Candidate candidate, Vacancy vacancy) {
+//         String candidatePosition = candidate.getPosition();
+        
+//         // Join the list of skills into a single string
+//         String candidateSkills = String.join(", ", candidate.getSkills());
+        
+//         String vacancyPosition = vacancy.getPositionApplied();
+//         String vacancySkills = vacancy.getSkills();
+    
+//         double positionMatchPercentage = calculatePositionMatchPercentage(candidatePosition, vacancyPosition);
+//         double skillsMatchPercentage = calculateSkillsMatchPercentage(candidateSkills, vacancySkills);
+    
+//         double totalWeight = 2.0;
+//         double positionWeight = 1.0;
+//         double skillsWeight = 1.0;
+    
+//         double combinedMatchPercentage = (positionMatchPercentage * positionWeight
+//                 + skillsMatchPercentage * skillsWeight) / totalWeight;
+    
+//         double formattedMatchPercentage = Double.parseDouble(String.format("%.2f", combinedMatchPercentage));
+    
+//         return formattedMatchPercentage;
+//     }
+
+//     private double calculatePositionMatchPercentage(String candidatePosition, String vacancyPosition) {
+//         return candidatePosition.equalsIgnoreCase(vacancyPosition) ? 100.0 : 0.0;
+//     }
+
+//     private double calculateSkillsMatchPercentage(String candidateSkills, String vacancySkills) {
+//         String[] candidateSkillsArray = candidateSkills.split(",");
+//         String[] vacancySkillsArray = vacancySkills.split(",");
+
+//         int matchingSkillsCount = 0;
+//         for (String candidateSkill : candidateSkillsArray) {
+//             for (String vacancySkill : vacancySkillsArray) {
+//                 if (candidateSkill.trim().equalsIgnoreCase(vacancySkill.trim())) {
+//                     matchingSkillsCount++;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         double totalSkills = Math.max(candidateSkillsArray.length, vacancySkillsArray.length);
+//         return (matchingSkillsCount / totalSkills) * 100;
+//     }
+
+//     public static class CandidateMatch {
+//         private Candidate candidate;
+//         private double matchPercentage;
+
+//         public CandidateMatch(Candidate candidate, double matchPercentage) {
+//             this.candidate = candidate;
+//             this.matchPercentage = matchPercentage;
+//         }
+
+//         public Candidate getCandidate() {
+//             return candidate;
+//         }
+
+//         public void setCandidate(Candidate candidate) {
+//             this.candidate = candidate;
+//         }
+
+//         public double getMatchPercentage() {
+//             return matchPercentage;
+//         }
+
+//         public void setMatchPercentage(double matchPercentage) {
+//             this.matchPercentage = matchPercentage;
+//         }
+//     }
+// }
+
+// ! Below code is good but matching percent doesn't arrange for the highest to
+// the lowest
+// package com.example.matching.service;
+
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.stereotype.Service;
+
+// import com.example.matching.model.Candidate;
+// import com.example.matching.model.Vacancy;
+// import com.example.matching.repository.CandidateRepository;
+
+// import java.util.ArrayList;
+// import java.util.List;
+
+// @Service
+// public class MatchService {
+
+// @Autowired
+// private CandidateRepository candidateRepository;
+
+// public List<CandidateMatch> findMatchingCandidates(Vacancy vacancy) {
+// List<Candidate> allCandidates = candidateRepository.findAll();
+// List<CandidateMatch> matchingCandidates = new ArrayList<>();
+
+// for (Candidate candidate : allCandidates) {
+// double matchPercentage = calculateMatchPercentage(candidate, vacancy);
+// if (matchPercentage > 0) {
+// matchingCandidates.add(new CandidateMatch(candidate, matchPercentage));
+// }
+// }
+
+// return matchingCandidates;
+// }
+
+// private double calculateMatchPercentage(Candidate candidate, Vacancy vacancy)
+// {
+// // Extract positions and skills from candidate and vacancy
+// String candidatePosition = candidate.getPosition();
+// String candidateSkills = candidate.getSkills();
+// String vacancyPosition = vacancy.getPosition();
+// String vacancySkills = vacancy.getSkills();
+
+// // Calculate match percentage based on positions and skills
+// double positionMatchPercentage =
+// calculatePositionMatchPercentage(candidatePosition, vacancyPosition);
+// double skillsMatchPercentage =
+// calculateSkillsMatchPercentage(candidateSkills, vacancySkills);
+
+// // Combine position and skills match percentages with a weightage
+// // Adjust weights according to the importance of position and skills in your
+// // matching criteria
+// double totalWeight = 2.0; // Total weight for position and skills
+// double positionWeight = 1.0; // Weight for position
+// double skillsWeight = 1.0; // Weight for skills
+
+// double combinedMatchPercentage = (positionMatchPercentage * positionWeight
+// + skillsMatchPercentage * skillsWeight) / totalWeight;
+
+// // return combinedMatchPercentage;
+// // Format the match percentage to two decimal points
+// double formattedMatchPercentage = Double.parseDouble(String.format("%.2f",
+// combinedMatchPercentage));
+
+// return formattedMatchPercentage;
+// }
+
+// private double calculatePositionMatchPercentage(String candidatePosition,
+// String vacancyPosition) {
+// return candidatePosition.equalsIgnoreCase(vacancyPosition) ? 100.0 : 0.0;
+// }
+
+// private double calculateSkillsMatchPercentage(String candidateSkills, String
+// vacancySkills) {
+// String[] candidateSkillsArray = candidateSkills.split(",");
+// String[] vacancySkillsArray = vacancySkills.split(",");
+
+// int matchingSkillsCount = 0;
+// for (String candidateSkill : candidateSkillsArray) {
+// for (String vacancySkill : vacancySkillsArray) {
+// if (candidateSkill.trim().equalsIgnoreCase(vacancySkill.trim())) {
+// matchingSkillsCount++;
+// break;
+// }
+// }
+// }
+
+// double totalSkills = Math.max(candidateSkillsArray.length,
+// vacancySkillsArray.length);
+// return (matchingSkillsCount / totalSkills) * 100;
+// }
+
+// public static class CandidateMatch {
+// private Candidate candidate;
+// private double matchPercentage;
+
+// public CandidateMatch(Candidate candidate, double matchPercentage) {
+// this.candidate = candidate;
+// this.matchPercentage = matchPercentage;
+// }
+
+// public Candidate getCandidate() {
+// return candidate;
+// }
+
+// public void setCandidate(Candidate candidate) {
+// this.candidate = candidate;
+// }
+
+// public double getMatchPercentage() {
+// return matchPercentage;
+// }
+
+// public void setMatchPercentage(double matchPercentage) {
+// this.matchPercentage = matchPercentage;
+// }
+// }
+// }
+
+// ! End
 // import org.springframework.stereotype.Service;
 
 // import com.example.matching.model.Candidate;

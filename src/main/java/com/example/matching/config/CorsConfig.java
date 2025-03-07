@@ -1,4 +1,7 @@
+//! Below code is good
 package com.example.matching.config;
+
+import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +17,20 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5173"); // Add the origin from where requests are coming
+        // config.addAllowedOrigin("http://localhost:5173",
+        // "https://test-tpd.vercel.app/"); // Add the origin from where requests are
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "https://test-tpd.vercel.app/",
+                "https://your-new-origin.com" // Add your new allowed origin here
+        ));
+        // config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // coming
+        // config.setAllowedOrigins(Arrays.asList(
+        // "<http://localhost:5173>",
+        // "<https://test-tpd.vercel.app/>",
+        // "<https://your-new-origin.com>" // Add your new allowed origin here
+        // ));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
@@ -22,6 +38,7 @@ public class CorsConfig {
     }
 }
 
+// ! End
 // import java.util.List;
 // import org.springframework.context.annotation.Bean;
 // import org.springframework.context.annotation.Configuration;
